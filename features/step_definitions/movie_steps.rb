@@ -2,10 +2,13 @@
 
 Given /the following movies exist/ do |movies_table|
   movies_table.hashes.each do |movie|
+    Movie.create(movie)
+  
+  end
     # each returned element will be a hash whose key is the table header.
     # you should arrange to add that movie to the database here.
-  end
-  pending "Fill in this step in movie_steps.rb"
+  #end
+  #pending "Fill in this step in movie_steps.rb"
 end
 
 Then /(.*) seed movies should exist/ do | n_seeds |
@@ -16,9 +19,14 @@ end
 #   on the same page
 
 Then /I should see "(.*)" before "(.*)"/ do |e1, e2|
+
+  e1_index = page.body.index(e1)
+  e2_index = page.body.index(e2)
+
+  expect(e1_index).to be < e2_index
   #  ensure that that e1 occurs before e2.
   #  page.body is the entire content of the page as a string.
-  pending "Fill in this step in movie_steps.rb"
+  #pending "Fill in this step in movie_steps.rb"
 end
 
 # Make it easier to express checking or unchecking several boxes at once
@@ -26,21 +34,49 @@ end
 #  "When I check the following ratings: G"
 
 When /I (un)?check the following ratings: (.*)/ do |uncheck, rating_list|
+    
+    ratings = rating_list.split(',')
+
+    #"ratings[#{rating}]"
+    ratings.each do |rating|
+    field = "ratings_#{rating.strip}"
+    if uncheck
+      uncheck(field)
+    else
+      check(field)
+    end
+  end
+end
   # HINT: use String#split to split up the rating_list, then
   #   iterate over the ratings and reuse the "When I check..." or
   #   "When I uncheck..." steps in lines 89-95 of web_steps.rb
-  pending "Fill in this step in movie_steps.rb"
-end
+  #pending "Fill in this step in movie_steps.rb"
+#end
+
+
 
 # Part 2, Step 3
 Then /^I should (not )?see the following movies: (.*)$/ do |no, movie_list|
+
+  movies = movie_list.split(', ')
+  movies.each do |movie|
+    if no 
+      expect(page).to have_content(movie)
+    else
+      expect(page).not_to have_content(movie)
+    end
+  end
   # Take a look at web_steps.rb Then /^(?:|I )should see "([^"]*)"$/
-  pending "Fill in this step in movie_steps.rb"
+  #pending "Fill in this step in movie_steps.rb"
 end
 
 Then /I should see all the movies/ do
+
+  expect(page).to have_xpath('.//tbody/tr', count: Movie.count)
+  
+
   # Make sure that all the movies in the app are visible in the table
-  pending "Fill in this step in movie_steps.rb"
+  #pending "Fill in this step in movie_steps.rb"
 end
 
 ### Utility Steps Just for this assignment.
